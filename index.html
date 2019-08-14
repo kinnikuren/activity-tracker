@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Activity Tracker</title>
+  <link type="text/css" rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>
+    Don't Waste The Day<br>
+    <div id="clock"></div>
+  </h1>
+
+  <br>
+  
+  <div id="stopwatches">
+    <h2>Stopwatches</h2>
+    <div class="stopwatch">
+      <div class="stopwatch_name">
+        Stopwatch
+      </div>
+      <div class="button" id="button">START</div>
+      Stopwatch Time: 
+      <div class="stopwatch_time" id="stopwatch_time">0:00:00</div>
+      <div class="start_stop_time">
+        Start Time: 
+        <span class="start_time" id="start_time"></span>
+        <br>
+        Stop Time: 
+        <span class="stop_time" id="stop_time"></span>
+      </div>  
+    </div>
+
+
+    <br>
+    <br>
+    <div id="new_stopwatch">
+      <br>
+      <br>
+      <form id="new_stopwatch_form">
+        <input type="text" name="new_stopwatch_name" id="new_stop_watch_name" required></input>
+        <button id="new_stopwatch_button" type="submit">New Stopwatch</button>
+      </form>
+    </div>
+  </div>
+  <div id="right_container">
+    <div id="summary">
+      <h2>Summary</h2>
+      <ul id="stopwatch_summary">
+      </ul>
+    </div>
+    <div id="logs">
+      <h2>Logs</h2>
+      <ul id="stopwatch_logs">
+      </ul>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="script.js"></script>
+</body>
+</html>

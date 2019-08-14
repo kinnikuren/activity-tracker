@@ -1,0 +1,73 @@
+html {
+  text-align: center;
+  font-family: Verdana;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.stopwatch {
+  padding: 5px;
+  background-color: red;
+  border: 2px solid black;
+}
+
+.stopwatch_time {
+  display: block;
+  padding: 5px;
+}
+
+.start_stop_time {
+  display: inline-block;
+  text-align: left;
+}
+
+.button {
+  color: green;
+  cursor: pointer;
+  /*border: 2px solid black;
+  width: 200px;
+  */
+}
+
+#stopwatches {
+  display: inline-block;
+  padding: 5px;
+}
+
+#new_stopwatch {
+  cursor: pointer;
+}
+
+#button {
+  color: green;
+  cursor: pointer;
+  /*border: 2px solid black;
+  width: 200px;
+  */
+}
+
+#new_stopwatch_button {
+  font-family: Verdana;
+}
+
+#right_container {
+  display: inline-block;
+  vertical-align: top;
+  text-align: left;
+  padding: 5px;
+}
+
+#summary {
+  display: block;
+  vertical-align: top;
+  padding: 5px;
+}
+
+#logs {
+  padding: 5px;
+}
+
+#stopwatch_logs {
+  font-size: 12px;
+}
+
