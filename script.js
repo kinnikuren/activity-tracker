@@ -364,6 +364,31 @@ newStopwatchForm.onsubmit = () => {
   return false;
 }
 
+
+function downloadCsv() {
+  let csv = 'id,name,elapsed_time\n';
+  for (let id in stopwatchSums) {
+    let row = id + ',' + allStopwatches[id].stopwatchName + ',' + stopwatchSums[id];
+    
+    csv += row + '\n';
+  }
+  
+  console.log(csv);
+  
+  let hiddenElement = document.createElement('a');
+  hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+  hiddenElement.target = '_blank';
+  hiddenElement.download = 'stopwatch_summary.csv';
+  hiddenElement.click();
+  
+}
+
+document.getElementById('download_csv').onclick = () => {
+  //console.log('clicked!');
+  
+  downloadCsv();
+}
+
 /*
 button.onmouseover = () => {
   button.style.cursor = 'pointer';

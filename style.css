@@ -5,6 +5,10 @@ html {
   font-weight: bold;
 }
 
+button {
+  font-family: Verdana;
+}
+
 .stopwatch {
   padding: 5px;
   background-color: red;
