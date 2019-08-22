@@ -21,10 +21,14 @@ let running = false;
 let timeInterval;
 let startTime;
 
+let isPieChartDisplayed = false;
+let stopwatchPieChart;
+
 class StopWatch {
   constructor(newStopwatchName, newStopwatchId) {
     this.id = stopwatchCounter;
     this.stopwatchName = newStopwatchName.toUpperCase();
+    this.elapsedTime = 0;
 
     let newStopwatch = document.createElement("div");
     newStopwatch.setAttribute("class", "stopwatch");
@@ -74,6 +78,10 @@ class StopWatch {
 
     stopwatches.insertBefore(newStopwatch, newStopwatchElement);
   }
+
+  updateElapsedTime() {
+    this.elapsedTime += this._stopTime - this._startTime;
+  }
   
   set startTime(startTime) {
     this._startTime = startTime;
@@ -81,6 +89,7 @@ class StopWatch {
   
   set stopTime(stopTime) {
     this._stopTime = stopTime;
+    this.updateElapsedTime();
   }
   
   get startTime() {
@@ -235,7 +244,9 @@ function updateLogDisplay(buttonId, stopwatchName, startTime, stopTime) {
 }
 
 function updateSummaryDisplay() {
-  stopwatchSummaryElement.innerHTML = '';
+  let totalElapsedTime = 0;
+  
+  stopwatchSummaryElement.innerHTML = ''; 
   for (let id in stopwatchSums) {
     console.log(id + ": " + stopwatchSums[id]);
     
@@ -244,7 +255,11 @@ function updateSummaryDisplay() {
     newElement.appendChild(document.createTextNode(newEntry));
   
     stopwatchSummaryElement.appendChild(newElement);
+
+    totalElapsedTime += stopwatchSums[id];
   }
+
+  document.getElementById('total_elapsed_time').innerHTML = displayTimeDiff(totalElapsedTime);
 }
 
 function updateStopwatchSums(buttonId) {
@@ -389,10 +404,82 @@ document.getElementById('download_csv').onclick = () => {
   downloadCsv();
 }
 
-/*
-button.onmouseover = () => {
-  button.style.cursor = 'pointer';
+function generateBackgroundColor(dataLength) {
+  console.log('generating background colors');
+  let backgroundColor = [];
+
+  let hue = 0;
+
+  for (let i=0; i < dataLength; i++) {
+    hue = (hue + (25 * i)) % 360;
+    console.log(hue);
+    backgroundColor.push('hsl(' + hue + ', 50%, 50%)');
+  }
+
+  console.log(backgroundColor);
+  return backgroundColor;
 }
-*/
+
+document.getElementById('display_pie_chart').onclick = () => {
+  if (!isPieChartDisplayed) {
+    isPieChartDisplayed = true;
+
+    event.target.innerHTML = 'Hide Pie Chart';
+    document.getElementById('pie-chart').style.display = "block";
+
+    //console.log(allStopwatches.entries());
+    let labels = [];
+    let data = []
+    for (let id in allStopwatches) {
+      labels.push(allStopwatches[id].stopwatchName);
+      data.push(allStopwatches[id].elapsedTime);
+    }
+
+    data = data.map((element) => {return element / (1000 * 60)});
+
+    console.log(labels);
+    console.log(data);
+
+    console.log(labels.length);
+    backgroundColor = generateBackgroundColor(labels.length);
+
+    if (stopwatchPieChart != undefined) {stopwatchPieChart.destroy();}
+    
+    stopwatchPieChart = new Chart(document.getElementById("pie-chart"), {
+      type: 'pie',
+      data: {
+        /*
+        labels: ["stopwatch_button_1", "stopwatch_button_2", "stopwatch_button_3", "stopwatch_button_4", 
+                "stopwatch_button_5", "stopwatch_button_6", "stopwatch_button_7", "stopwatch_button_8",
+                "stopwatch_button_9", "stopwatch_button_10"],
+        */
+        labels: labels,
+        datasets: [{
+          label: "Elapsed Time",
+          //backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+          backgroundColor: backgroundColor,
+          //data: [610382,190150,13453625,3866060,1621888,1118220,3094995,2157093,1796319,55112]
+          data: data
+        }]
+      },
+      options: {
+        responsive: false,
+        title: {
+          display: true,
+          text: 'Stopwatch Summary'
+        }
+      }
+    })
+
+  } else {
+    isPieChartDisplayed = false;
+    event.target.innerHTML = 'Display Pie Chart';
+
+
+    document.getElementById('pie-chart').style.display = "none";
+    console.log('hide pie chart');
+  }
+}
+
 
 document.onload = startClock();

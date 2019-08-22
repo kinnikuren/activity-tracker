@@ -36,6 +36,7 @@ button {
 #stopwatches {
   display: inline-block;
   padding: 5px;
+  width: 400px;
 }
 
 #new_stopwatch {
@@ -59,6 +60,7 @@ button {
   vertical-align: top;
   text-align: left;
   padding: 5px;
+  width: 400px;
 }
 
 #summary {
@@ -73,5 +75,9 @@ button {
 
 #stopwatch_logs {
   font-size: 12px;
+}
+
+#pie-chart {
+  display: none;
 }
 
