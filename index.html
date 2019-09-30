@@ -59,11 +59,31 @@
         <canvas id="pie-chart" width="400" height="400"></canvas>
       </div>    
     </div>
+    
     <div id="logs">
       <h2>Logs</h2>
+      Manual Entry:
+      <br>
+      <span id="manual_entry_error"></span>
+      <br>
+      <form id="manual_log_form">
+        <select name="stopwatch_dropdown" id="stopwatch_dropdown" required>
+        </select>
+        <br>
+        <input type="text" size="2" maxlength="2" placeholder="HH" id="start_hour" name="start_hour" 
+               required pattern="[0-9]{1,2}"></input> :
+        <input type="text" size="2" maxlength="2" placeholder="MM" id="start_mins" name="start_mins" 
+               required pattern="[0-9]{1,2}"></input> - 
+        <input type="text" size="2" maxlength="2" placeholder="HH" id="end_hour" name="end_hour" 
+               required pattern="[0-9]{1,2}"></input> :
+        <input type="text" size="2" maxlength="2" placeholder="MM" id="end_mins" name="end_mins" 
+               required pattern="[0-9]{1,2}"></input>
+        <button type="submit" id="manual_log_button">Log</button>
+      </form>
       <ul id="stopwatch_logs">
       </ul>
     </div>
+    
   </div>
 
   <br>

@@ -1,4 +1,4 @@
-const button = document.getElementById('button');
+const buttonElement = document.getElementById('button');
 const startTimeElement = document.getElementById('start_time');
 const stopTimeElement = document.getElementById('stop_time');
 const stopwatchTimeElement = document.getElementById('stopwatch_time');
@@ -10,6 +10,8 @@ const newStopwatchElement = document.getElementById('new_stopwatch');
 const newStopwatchForm = document.getElementById('new_stopwatch_form');
 const newStopwatchButton = document.getElementById('new_stopwatch_button');
 const stopwatches = document.getElementById('stopwatches');
+
+const stopwatchDropdownElement = document.getElementById('stopwatch_dropdown');
 
 let allStopwatches = new Array();
 let stopwatchSums = new Array();
@@ -79,8 +81,8 @@ class StopWatch {
     stopwatches.insertBefore(newStopwatch, newStopwatchElement);
   }
 
-  updateElapsedTime() {
-    this.elapsedTime += this._stopTime - this._startTime;
+  updateElapsedTime(startTime, stopTime) {
+    this.elapsedTime += stopTime - startTime;
   }
   
   set startTime(startTime) {
@@ -89,7 +91,7 @@ class StopWatch {
   
   set stopTime(stopTime) {
     this._stopTime = stopTime;
-    this.updateElapsedTime();
+    this.updateElapsedTime(this._startTime, this._stopTime);
   }
   
   get startTime() {
@@ -109,6 +111,7 @@ function checkTime(i) {
   return i;
 }
 
+//formats strings to readable time
 function formatTimeString(h, m, s) {
   m = checkTime(m);
   s = checkTime(s);
@@ -146,7 +149,7 @@ function displayTimeDiff(timeDiff) {
   return formatTimeString(hours, minutes, seconds)
 }
 
-function showWatch(button) {
+function showWatch(buttonElement) {
   console.log('showing current stopwatch time');
   let currentTime = new Date();
   let timeDiff = currentTime - startTime;
@@ -157,7 +160,7 @@ function showWatch(button) {
   let currentWatchTime = displayTimeDiff(timeDiff);
   console.log(currentWatchTime);
 
-  let stopwatchTimeElement = button.parentElement.getElementsByClassName('stopwatch_time')[0];
+  let stopwatchTimeElement = buttonElement.parentElement.getElementsByClassName('stopwatch_time')[0];
 
   stopwatchTimeElement.innerHTML = currentWatchTime;
 
@@ -182,50 +185,50 @@ function addStopTime(buttonId, stopTime) {
   //console.log(stopwatchStartStop);
 }
 
-function startWatch(button) {
+function startWatch(buttonElement) {
   if (!running) {
     console.log('stopwatch started');
     running = true;
 
     startTime = new Date();
     
-    let buttonId = button.attributes.getNamedItem('id').value;
+    let buttonId = buttonElement.attributes.getNamedItem('id').value;
     addStartTime(buttonId, startTime);
 
 
     let formatted_time = formatTime(startTime);
 
-    let parentElement = button.parentElement;
+    let parentElement = buttonElement.parentElement;
     console.log(parentElement);
 
     console.log(parentElement.querySelector('start_time'));
     console.log(parentElement.getElementsByClassName('start_time'));
     //console.log(typeof parentElement);
-    //console.log(button.closest('start_time'));
+    //console.log(buttonElement.closest('start_time'));
 
     let startTimeElement = parentElement.getElementsByClassName('start_time')[0];
     let stopTimeElement = parentElement.getElementsByClassName('stop_time')[0];
-    let stopwatchTimeElement = button.parentElement.getElementsByClassName('stopwatch_time')[0];
+    let stopwatchTimeElement = buttonElement.parentElement.getElementsByClassName('stopwatch_time')[0];
 
     stopwatchTimeElement.innerHTML = '0:00:00';
     startTimeElement.innerHTML = formatted_time;
     stopTimeElement.innerHTML = '';
 
-    timeInterval = setInterval(showWatch, 500, button);
+    timeInterval = setInterval(showWatch, 500, buttonElement);
     
   }
 }
 
-function stopWatch(button) {
+function stopWatch(buttonElement) {
   running = false;
 
   let stopTime = new Date();
-  let buttonId = button.attributes.getNamedItem('id').value;
+  let buttonId = buttonElement.attributes.getNamedItem('id').value;
   addStopTime(buttonId, stopTime);
 
   let formatted_time = formatTime(stopTime);
 
-  let stopTimeElement = button.parentElement.getElementsByClassName('stop_time')[0];
+  let stopTimeElement = buttonElement.parentElement.getElementsByClassName('stop_time')[0];
 
   stopTimeElement.innerHTML = formatted_time;
 
@@ -235,6 +238,7 @@ function stopWatch(button) {
 
 }
 
+//times are Date objects
 function updateLogDisplay(buttonId, stopwatchName, startTime, stopTime) {
   let newEntry = stopwatchName + ": " + startTime + " - " + stopTime;
   let newElement = document.createElement('li');
@@ -262,14 +266,10 @@ function updateSummaryDisplay() {
   document.getElementById('total_elapsed_time').innerHTML = displayTimeDiff(totalElapsedTime);
 }
 
-function updateStopwatchSums(buttonId) {
-  //let elapsedTime = button.parentElement.getElementsByClassName('stopwatch_time')
-  console.log(buttonId);
-  let currentStopwatch = allStopwatches[buttonId];
-  console.log(currentStopwatch);
-  console.log(currentStopwatch.stopTime);
+function updateStopwatchSums(buttonId, startTime, stopTime) {
+  console.log('updating stopwatch summary');
   
-  let timeDiff = currentStopwatch.stopTime - currentStopwatch.startTime;
+  let timeDiff = stopTime - startTime;
   
   let elapsedTime = displayTimeDiff(timeDiff);
   console.log("elapsed time " + elapsedTime);
@@ -283,39 +283,43 @@ function updateStopwatchSums(buttonId) {
   updateSummaryDisplay();
 }
 
-function saveTimes(button) {
-  let buttonId = button.attributes.getNamedItem('id').value;
+function updateStopwatchLog(buttonId, stopwatchName, startTime, stopTime) {
+    console.log('updating stopwatch log');
+    updateLogDisplay(buttonId, stopwatchName, formatTime(startTime), formatTime(stopTime));
+    stopwatchLog[Date.now()] = [buttonId, stopwatchName, startTime, stopTime];
+    console.log(stopwatchLog);
+}
+
+function updateStopwatchDisplay(buttonId, startTime, stopTime) {
+    updateStopwatchSums(buttonId, startTime, stopTime);
+    updateStopwatchLog(buttonId, allStopwatches[buttonId].stopwatchName, startTime, stopTime);
+}
+
+//save stopwatch times into log
+function saveTimes(buttonElement) {
+  console.log('saving times');
+  let buttonId = buttonElement.attributes.getNamedItem('id').value;
+  console.log(buttonId);
+
+  let currentStopwatch = allStopwatches[buttonId];
+  console.log(currentStopwatch);
+  let startTime = currentStopwatch.startTime;
+  console.log(startTime);
+  let stopTime = currentStopwatch.stopTime;
+  console.log(stopTime);
   
   if (allStopwatches[buttonId] != undefined) {
   
-    let startTime = button.parentElement.getElementsByClassName('start_time')[0].innerHTML;
-    let stopTime = button.parentElement.getElementsByClassName('stop_time')[0].innerHTML;
+    /*let startTimeString = buttonElement.parentElement.getElementsByClassName('start_time')[0].innerHTML;
+    let stopTimeString = buttonElement.parentElement.getElementsByClassName('stop_time')[0].innerHTML;
+    let stopwatchName = buttonElement.parentElement.getElementsByClassName('stopwatch_name')[0].innerHTML; */
+    
+    let startTimeString = formatTime(startTime);
+    let stopTimeString = formatTime(stopTime);
+    let stopwatchName = allStopwatches[buttonId].stopwatchName;
 
-    let stopwatchName = button.parentElement.getElementsByClassName('stopwatch_name')[0].innerHTML; 
-
-    updateStopwatchSums(buttonId);
-
-    //calculateTimeDiff()
-
-    console.log(buttonId + startTime + stopTimeElement);
-    updateLogDisplay(buttonId, stopwatchName, startTime, stopTime);
-    stopwatchLog[Date.now()] = [buttonId, stopwatchName, startTime, stopTime];
-    console.log(stopwatchLog);
+    updateStopwatchDisplay(buttonId, startTime, stopTime);
   }
-  
-
-}
-
-function updateSummary(button) {
-  let buttonId = button.attributes.getNamedItem('id').value;
-  console.log(buttonId);
-  
-  let newSum = document.createElement('li');
-  newSum.appendChild(document.createTextNode(buttonId));
-  
-  stopwatchSummaryElement.appendChild(newSum);
-  
-
 }
 
 function startStop() {
@@ -345,11 +349,28 @@ function startStop() {
   }
 }
 
-button.onclick = startStop;
+buttonElement.onclick = startStop;
 
+
+function updateDropdown() {
+  stopwatchDropdownElement.innerHTML = '';
+  
+  for (let id in allStopwatches) {
+    let newOption = document.createElement('option');
+    
+    let stopwatchName = allStopwatches[id].stopwatchName;
+    newOption.setAttribute('value', id);
+    newOption.appendChild(document.createTextNode(stopwatchName));
+    
+    stopwatchDropdownElement.appendChild(newOption);
+    
+  }
+}
 
 newStopwatchButton.onclick = () => {
   let newStopwatchName = newStopwatchForm.elements['new_stop_watch_name'].value;
+  
+  //validate form submission
 
   if (newStopwatchName != '') {
 
@@ -369,12 +390,14 @@ newStopwatchButton.onclick = () => {
     
     allStopwatches[newStopwatchId] = newStopwatch;
     
+    updateDropdown();
+    
     //newStopwatchButton.style.color = 'red';
   }
 }
 
 newStopwatchForm.onsubmit = () => {
-  //console.log(document.getElementById('new_stopwatch_name').value);
+  console.log(document.getElementById('new_stopwatch_name').value);
 
   return false;
 }
@@ -441,7 +464,7 @@ document.getElementById('display_pie_chart').onclick = () => {
     console.log(data);
 
     console.log(labels.length);
-    backgroundColor = generateBackgroundColor(labels.length);
+    let backgroundColor = generateBackgroundColor(labels.length);
 
     if (stopwatchPieChart != undefined) {stopwatchPieChart.destroy();}
     
@@ -480,6 +503,107 @@ document.getElementById('display_pie_chart').onclick = () => {
     console.log('hide pie chart');
   }
 }
+
+const manualLogFormElement = document.getElementById('manual_log_form');
+const manualLogErrorElement = document.getElementById('manual_entry_error');
+
+manualLogFormElement.onsubmit = () => {
+  console.log('submitted manual log');
+  
+  manualLogErrorElement.innerHTML = '';
+  
+  //custom validity message
+  //document.getElementById('manual_log_button').setCustomValidity("test");
+  
+  
+  //get form values
+  let selectedStopwatch = document.getElementById('stopwatch_dropdown').value;
+  let startHour = manualLogFormElement.elements['start_hour'].value;
+  let startMins = manualLogFormElement.elements['start_mins'].value;
+  let endHour = manualLogFormElement.elements['end_hour'].value;
+  let endMins = manualLogFormElement.elements['end_mins'].value;
+
+  console.log(selectedStopwatch);
+  
+  //convert strings to numbers
+  //try catch?
+  startHour = parseInt(startHour);
+  startMins= parseInt(startMins);
+  endHour = parseInt(endHour);
+  endMins = parseInt(endMins);
+  
+  console.log(startHour, startMins, endHour, endMins);
+
+  let errorMessage;
+
+  //validate hours (<24) and minutes (<60)
+  if (startHour >= 24 || endHour >= 24) {
+    console.log('invalid hour');
+    errorMessage = "(Please enter a valid hour (<24))";
+    document.getElementById('manual_entry_error').appendChild(document.createTextNode(errorMessage));
+    return false;
+  }
+  
+  if (startMins >= 60 || endMins >= 60) {
+    console.log('invalid minutes');
+    errorMessage = "(Please enter valid minutes (<60))";
+    document.getElementById('manual_entry_error').appendChild(document.createTextNode(errorMessage));
+    return false;
+  }
+  
+  //convert to time
+  let currentTime = new Date();
+  
+  let startTime = new Date(currentTime.getFullYear(), currentTime.getMonth(), currentTime.getDate(), startHour, startMins);
+  console.log(startTime);
+  
+  let endTime = new Date(currentTime.getFullYear(), currentTime.getMonth(), currentTime.getDate(), endHour, endMins);
+  console.log(endTime);
+   
+  //check that end time is after start time
+  console.log('check that end time is after start time');
+  if (endTime <= startTime) {
+    console.log('end time is equal to or before start time');
+    errorMessage = "(End time must be after start time)"
+    document.getElementById('manual_entry_error').appendChild(document.createTextNode(errorMessage));
+    return false;
+  }
+  
+  //check that end time is not past current time
+  if (endTime > currentTime) {
+    console.log('end time is after current time');
+    errorMessage = "(End time must be before current time)"
+    document.getElementById('manual_entry_error').appendChild(document.createTextNode(errorMessage));
+    return false;
+  }
+  
+  //check that start and end times do not overlap with existing logs
+  console.log('check for overlap');
+  for (let i in stopwatchLog) {
+    //console.log(stopwatchLog);
+    logStartTime = stopwatchLog[i][2];
+    logEndTime = stopwatchLog[i][3];
+    
+    console.log(logStartTime, logEndTime);
+    
+    if ((startTime >= logStartTime && startTime <= logEndTime) || (endTime >= logStartTime && endTime <= logEndTime)
+        || (startTime <= logStartTime && endTime >= logEndTime)) {
+      console.log('new entry overlaps existing entry');
+      errorMessage = "(Manual entry cannot overlap any existing logs)"
+      document.getElementById('manual_entry_error').appendChild(document.createTextNode(errorMessage));
+      return false;
+    }
+  }
+    
+  //update elapsed time on selected stopwatch
+  allStopwatches[selectedStopwatch].updateElapsedTime(startTime, endTime);
+  
+  //save and update log and summary display
+  updateStopwatchDisplay(selectedStopwatch, startTime, endTime);
+
+  return false;
+}
+
 
 
 document.onload = startClock();
